@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.proj_env/
+venv/
+.env/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Data files
+data/raw/
+data/processed/
+
+# Large dataset formats
+*.csv
+*.tsv
+*.json
+*.parquet
+
+# But allow small samples
+!data/sample/
+!data/sample/*.csv
+
+# Models
+models/
+
+# HuggingFace cache
+.cache/
+huggingface/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
