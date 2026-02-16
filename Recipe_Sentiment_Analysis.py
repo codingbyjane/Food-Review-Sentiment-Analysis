@@ -42,10 +42,7 @@ full_dataset_df = pd.concat([reviews_df, sentiments_df], axis=1) # Combine revie
 full_dataset_df = full_dataset_df.rename(columns={'stars':'rating', 'text':'review_text'})
 
 # Display the first few rows of the dataset
-print(full_dataset_df.head(20))
-
-# Convert the pandas DataFrame into a Hugging Face Dataset for easier integration with NLP models
-full_dataset_hf = Dataset.from_pandas(full_dataset_df)
+print(full_dataset_df.head(10))
 
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
@@ -53,6 +50,11 @@ stopwords_set = set(stopwords.words('english'))
 
 # Define a function to clean the review text
 def preprocess_text(text): 
+
+    # Ensure the input is a string
+    if not isinstance(text, str):
+        text = "" # Replace with empty string
+
     text = text.lower() # Convert to lowercase
     text = re.sub(r"<.*?>", "", text) # Remove HTML tags
     text = re.sub(r"[^a-zA-Z\s]", "", text) # Remove special characters
@@ -63,8 +65,20 @@ def preprocess_text(text):
     return cleaned_text
 
 
+# Apply the function to the 'review_text' column of the DataFrame
+full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text)
 
+# Normalize sentiment labels to three classes: positive (4-5 stars), neutral (3 stars), and negative (1-2 stars)
+full_dataset_df['rating'] = full_dataset_df['rating'].replace({
+    0 : "NEGATIVE",
+    1 : "NEGATIVE",
+    2 : "NEGATIVE",
+    3 : "NEUTRAL",
+    4 : "POSITIVE",
+    5 : "POSITIVE"
+})
 
+print(full_dataset_df['rating'].value_counts())
 
-# Filter the dataset to create subsets for the startup's main products: pizza, sushi, and ramen
-pizza_reviews = full_dataset_hf.filter() # Applying a lambda inside a higher order function to filter dataset
+# Convert the pandas DataFrame into a Hugging Face Dataset for easier integration with NLP models
+full_dataset_hf = Dataset.from_pandas(full_dataset_df)
