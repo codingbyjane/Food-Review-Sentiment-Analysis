@@ -20,8 +20,7 @@ nltk.download('stopwords')
 # NLP & Deep Learning
 import torch
 from datasets import Dataset
-from transformers import (BartTokenizer, BartForSequenceClassification, Trainer, TrainingArguments) # For BART-based sentiment analysis
-from transformers import pipeline, AutoTokenizer, set_seed # For zero-shot classification and reproducibility
+from transformers import pipeline
 
 # NLP utilities
 from sklearn.model_selection import train_test_split
@@ -76,6 +75,9 @@ def preprocess_text(text):
 # Apply the function to the 'review_text' column of the DataFrame
 full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text)
 
+# Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analysis results
+full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
+
 # Normalize sentiment labels to three classes: positive (4-5 stars), neutral (3 stars), and negative (1-2 stars)
 full_dataset_df['rating'] = full_dataset_df['rating'].replace({
     1 : "NEGATIVE",
@@ -85,14 +87,25 @@ full_dataset_df['rating'] = full_dataset_df['rating'].replace({
     5 : "POSITIVE"
 })
 
-# Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analyssi results
-full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
-
-
 # Convert the pandas DataFrame into a Hugging Face Dataset for easier integration with NLP models
 full_dataset_hf = Dataset.from_pandas(full_dataset_df.reset_index(drop=True)) # Reset index to ensure a clean dataset without the old indexes
 
+pizza_keywords = ['pizza', 'pepperoni', 'margherita', 'hawaiian'] # Define a list of keywords related to pizza to identify relevant reviews
+sushi_keywords = ['sushi', 'sashimi', 'nigiri', 'maki'] # Define a list of keywords related to sushi to identify relevant reviews
+ramen_keywords = ['ramen', 'noodles', 'broth', 'tonkotsu'] # Define a list of keywords related to ramen to identify relevant reviews
+
 # Filtering the dataset to create susets for the startup's main products: pizza, suchi, and ramen
-pizza_reviews = full_dataset_hf.filter(lambda review: 'pizza' in review['cleaned_review_text']) # Filter reviews that mention "pizza"
-sushi_reviews = full_dataset_hf.filter(lambda review: 'sushi' in review['cleaned_review_text']) # Filter reviews that mention "sushi"
-ramen_reviews = full_dataset_hf.filter(lambda review: 'ramen' in review['cleaned_review_text']) # Filter reviews that mention "ramen"
+pizza_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in pizza_keywords))
+ramen_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in ramen_keywords)) 
+sushi_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in sushi_keywords))
+
+print(len(pizza_reviews))  # How many reviews mention pizza
+print(len(sushi_reviews))  # How many reviews mention sushi
+print(len(ramen_reviews))  # How many reviews mention ramen
+
+# Create a pipeline for sentiment analysis using a pre-trained BERT model from Hugging Face's Transformers library
+pipe = pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
+
+pizza_review_result = pipe(list(pizza_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of pizza reviews using the pipeline, truncating long reviews to fit the model's input size
+sushi_review_result = pipe(list(sushi_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of sushi reviews
+ramen_review_result = pipe(list(ramen_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of ramen reviews
