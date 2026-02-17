@@ -41,8 +41,16 @@ full_dataset_df = pd.concat([reviews_df, sentiments_df], axis=1) # Combine revie
 # Renaming columns for clarity
 full_dataset_df = full_dataset_df.rename(columns={'stars':'rating', 'text':'review_text'})
 
-# Display the first few rows of the dataset
-print(full_dataset_df.head(10))
+
+# Display the first few rows of the dataset to understand its structure
+print(full_dataset_df.head())
+
+# Check the distribution of ratings in the dataset to understand the balance of sentiment classes
+print(full_dataset_df['rating'].value_counts(dropna=False))
+
+# Check for reviews with 0 rating, which may indicate missing data
+zero_reviews = full_dataset_df[full_dataset_df['rating'] == 0]
+print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
 
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
@@ -53,7 +61,7 @@ def preprocess_text(text):
 
     # Ensure the input is a string
     if not isinstance(text, str):
-        text = "" # Replace with empty string
+        text = "" # Replace NaNs and other invalid value with an empty string to prevent errors during processing
 
     text = text.lower() # Convert to lowercase
     text = re.sub(r"<.*?>", "", text) # Remove HTML tags
@@ -70,7 +78,6 @@ full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(pr
 
 # Normalize sentiment labels to three classes: positive (4-5 stars), neutral (3 stars), and negative (1-2 stars)
 full_dataset_df['rating'] = full_dataset_df['rating'].replace({
-    0 : "NEGATIVE",
     1 : "NEGATIVE",
     2 : "NEGATIVE",
     3 : "NEUTRAL",
@@ -78,7 +85,14 @@ full_dataset_df['rating'] = full_dataset_df['rating'].replace({
     5 : "POSITIVE"
 })
 
-print(full_dataset_df['rating'].value_counts())
+# Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analyssi results
+full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
+
 
 # Convert the pandas DataFrame into a Hugging Face Dataset for easier integration with NLP models
-full_dataset_hf = Dataset.from_pandas(full_dataset_df)
+full_dataset_hf = Dataset.from_pandas(full_dataset_df.reset_index(drop=True)) # Reset index to ensure a clean dataset without the old indexes
+
+# Filtering the dataset to create susets for the startup's main products: pizza, suchi, and ramen
+pizza_reviews = full_dataset_hf.filter(lambda review: 'pizza' in review['cleaned_review_text']) # Filter reviews that mention "pizza"
+sushi_reviews = full_dataset_hf.filter(lambda review: 'sushi' in review['cleaned_review_text']) # Filter reviews that mention "sushi"
+ramen_reviews = full_dataset_hf.filter(lambda review: 'ramen' in review['cleaned_review_text']) # Filter reviews that mention "ramen"
