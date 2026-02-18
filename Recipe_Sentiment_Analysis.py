@@ -73,7 +73,7 @@ def preprocess_text(text):
 
 
 # Apply the function to the 'review_text' column of the DataFrame
-full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text)
+full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text) # creates a new column 'cleaned_review_text'
 
 # Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analysis results
 full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
@@ -109,3 +109,8 @@ pipe = pipeline("text-classification", model="nlptown/bert-base-multilingual-unc
 pizza_review_result = pipe(list(pizza_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of pizza reviews using the pipeline, truncating long reviews to fit the model's input size
 sushi_review_result = pipe(list(sushi_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of sushi reviews
 ramen_review_result = pipe(list(ramen_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of ramen reviews
+
+# Convert the sentiment analysis results into DataFrames for easier data manipulation and visualization
+pizza_result_df = pd.DataFrame(pizza_review_result)
+sushi_result_df = pd.DataFrame(sushi_review_result)
+ramen_result_df = pd.DataFrame(ramen_review_result)
