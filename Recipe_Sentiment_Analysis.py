@@ -134,7 +134,7 @@ pizza_reviews_df = pizza_reviews.to_pandas()
 sushi_reviews_df = sushi_reviews.to_pandas()
 ramen_reviews_df = ramen_reviews.to_pandas()
 
-# Merge the sentiment results with the original reviews to create a clean dataset that contains both the original review text and the predicted sentiment labels for each product
+# Merge the sentiment results with the original reviews to create a clean DataFrame that contains both the original review text and the predicted sentiment labels for each product
 pizza_reviews_df['sentiment'] = pizza_result_df['sentiment'] 
 sushi_reviews_df['sentiment'] = sushi_result_df['sentiment']
 ramen_reviews_df['sentiment'] = ramen_result_df['sentiment'] 
@@ -144,5 +144,11 @@ pizza_reviews_df['product'] = 'Pizza'
 sushi_reviews_df['product'] = 'Sushi'
 ramen_reviews_df['product'] = 'Ramen'
 
-# Merge all product reviews into a single dataset for cleaner analysis and visualization.
+# Merge all product reviews into a single DataFrame for cleaner analysis and visualization.
 product_reviews_df = pd.concat([pizza_reviews_df, sushi_reviews_df, ramen_reviews_df], ignore_index=True)
+
+print(product_reviews_df[['product', 'cleaned_review_text', 'sentiment']].head(15)) # Display the first few rows of the final DataFrame to verify the structure and content
+
+# Isolate the positive & negative instances by filtering the 'sentiment' column
+positive_reviews_df = product_reviews_df[product_reviews_df['sentiment'] == 'POSITIVE']
+negative_reviews_df = product_reviews_df[product_reviews_df['sentiment'] == 'NEGATIVE']
