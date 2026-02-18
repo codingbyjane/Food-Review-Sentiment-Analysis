@@ -110,7 +110,21 @@ pizza_review_result = pipe(list(pizza_reviews['cleaned_review_text']), truncatio
 sushi_review_result = pipe(list(sushi_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of sushi reviews
 ramen_review_result = pipe(list(ramen_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of ramen reviews
 
-# Convert the sentiment analysis results into DataFrames for easier data manipulation and visualization
+# Convert the sentiment analysis results into pandas DataFrames for easier data manipulation and visualization
 pizza_result_df = pd.DataFrame(pizza_review_result)
 sushi_result_df = pd.DataFrame(sushi_review_result)
 ramen_result_df = pd.DataFrame(ramen_review_result)
+
+# Map the sentiment labels from the BERT model's star system to the original rating categories (POSITIVE, NEUTRAL, NEGATIVE)
+label_mapping = {
+    '1 star': 'NEGATIVE',
+    '2 stars': 'NEGATIVE',
+    '3 stars': 'NEUTRAL',
+    '4 stars': 'POSITIVE',
+    '5 stars': 'POSITIVE'
+}
+
+# Apply mapping to each results DataFrame by adding a new column that contains the new sentiment labels
+pizza_result_df['sentiment'] = pizza_result_df['label'].replace(label_mapping)
+sushi_result_df['sentiment'] = sushi_result_df['label'].replace(label_mapping)
+ramen_result_df['sentiment'] = ramen_result_df['label'].replace(label_mapping)
