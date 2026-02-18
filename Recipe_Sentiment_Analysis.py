@@ -147,8 +147,49 @@ ramen_reviews_df['product'] = 'Ramen'
 # Merge all product reviews into a single DataFrame for cleaner analysis and visualization.
 product_reviews_df = pd.concat([pizza_reviews_df, sushi_reviews_df, ramen_reviews_df], ignore_index=True)
 
-print(product_reviews_df[['product', 'cleaned_review_text', 'sentiment']].head(15)) # Display the first few rows of the final DataFrame to verify the structure and content
 
 # Isolate the positive & negative instances by filtering the 'sentiment' column
 positive_reviews_df = product_reviews_df[product_reviews_df['sentiment'] == 'POSITIVE']
 negative_reviews_df = product_reviews_df[product_reviews_df['sentiment'] == 'NEGATIVE']
+
+print(f"Positive Reviews:\n{positive_reviews_df[['product', 'cleaned_review_text', 'sentiment']].head()}\n") # Display the first few positive reviews for each product
+print(f"Negative Reviews:\n{negative_reviews_df[['product', 'cleaned_review_text', 'sentiment']].head()}\n") # Display the first few negative reviews for each product
+
+
+# Create a general ingredient list by extracting commonly mentioned ingredients from the reviews
+general_ingredient_list = [
+
+    # Pizza ingredients
+    'broccoli', 'corn', 'zucchini', 'red peppers', 'bacon', 'tomato sauce', 'olives', 'onions', 'mushrooms', 'spinach', 'garlic', 'basil', 'oregano', 'mozzarella', 'parmesan', 'cheese', 'tomato', 'pineapple', 'ham',
+
+    # Sushi ingredients
+    'soy sauce', 'wasabi', 'ginger', 'avocado', 'cucumber', 'carrot', 'cream cheese', 'tempura flakes', 'salmon', 'tuna', 'eel', 'shrimp', 'crab', 'seaweed', 'rice', 'nori', 
+
+    # Ramen ingredients
+    'pork', 'chicken', 'beef', 'tofu', 'egg', 'bok choy', 'miso', 'ramen noodles', 'chili oil', 'broth', 'scallions', 'chili', 'kimchi', 'sesame', 'tonkotsu', 'shoyu', 'shio'
+]
+
+# Define a function to loop over the review texts and check for the presence pf ingredients from the general ingredient list
+def extract_ingredients(reviews,  ingredients):
+
+    # Arguments:
+    # reviews (DataFrame): A DataFrame containing the reviews to analyze.
+    # ingredients (list): A list of ingredient strings to look for in the reviews.
+
+    extracted_ingredients = []
+
+    for review in reviews:
+        # Defien an empty list to store the ingredients found in the current review
+        found_in_review = []
+
+        for ingredient in ingredients:
+
+            # RegEx to ensure the function matches whole words only, preventing false positives (e.g., "ham" in "hamburger")
+            pattern = r'\b' + re.escape(ingredient) + r'\b'
+
+            if re.search(pattern, review):
+                found_in_review.append(ingredient) # If the ingredient is found in the review, add it to the list of found ingredients for that review
+            
+        extracted_ingredients.append(found_in_review) # After checking all ingredients for the current review, add the list of found ingredients to the main list of extracted ingredients
+
+    return extracted_ingredients
