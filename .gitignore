@@ -12,6 +12,12 @@ venv/
 # Jupyter
 .ipynb_checkpoints
 
+# Venn diagram images
+venn_diagrams/*.png
+
+# Intersection text outputs
+*.txt
+
 # Data files
 data/raw/
 data/processed/
