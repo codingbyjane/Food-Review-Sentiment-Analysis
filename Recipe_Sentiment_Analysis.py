@@ -23,7 +23,6 @@ from datasets import Dataset
 from transformers import pipeline
 
 # NLP utilities
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
 # Dataset fetching
@@ -117,7 +116,7 @@ ramen_result_df = pd.DataFrame(ramen_review_result)
 
 # Map the sentiment labels from the BERT model's star system to the original rating categories (POSITIVE, NEUTRAL, NEGATIVE)
 label_mapping = {
-    '1 star': 'NEGATIVE',
+    '1 star' : 'NEGATIVE',
     '2 stars': 'NEGATIVE',
     '3 stars': 'NEUTRAL',
     '4 stars': 'POSITIVE',
@@ -173,8 +172,8 @@ general_ingredient_list = [
 def extract_ingredients(reviews,  ingredients):
 
     # Arguments:
-    # reviews (DataFrame): A DataFrame containing the reviews to analyze.
-    # ingredients (list): A list of ingredient strings to look for in the reviews.
+    # Reviews (DataFrame): A DataFrame containing the reviews to analyze.
+    # Ingredients (list): A list of ingredient strings to look for in the reviews.
 
     extracted_ingredients = []
 
@@ -193,3 +192,20 @@ def extract_ingredients(reviews,  ingredients):
         extracted_ingredients.append(found_in_review) # After checking all ingredients for the current review, add the list of found ingredients to the main list of extracted ingredients
 
     return extracted_ingredients
+
+# Apply the defined function per product to extract the frequently mentioned ingredients in the reviews for each product category. Outputs ingredient mentions extracted per review, stored as nested lists
+pizza_ingredients = extract_ingredients(pizza_reviews_df['cleaned_review_text'], general_ingredient_list)
+sushi_ingredients = extract_ingredients(sushi_reviews_df['cleaned_review_text'], general_ingredient_list)
+ramen_ingredients = extract_ingredients(ramen_reviews_df['cleaned_review_text'], general_ingredient_list)
+
+pizza_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in positive pizza reviews
+pizza_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in negative pizza reviews
+
+sushi_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Sushi']['cleaned_review_text'], general_ingredient_list)
+sushi_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Sushi']['cleaned_review_text'], general_ingredient_list)
+
+ramen_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
+ramen_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
+
+print(pizza_ingredients_positive[:15])
+print(pizza_ingredients_negative[:15])
