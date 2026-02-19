@@ -207,5 +207,19 @@ sushi_ingredients_negative = extract_ingredients(negative_reviews_df[negative_re
 ramen_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
 ramen_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
 
-print(pizza_ingredients_positive[:15])
-print(pizza_ingredients_negative[:15])
+# Define a function to flatten the nested lists of ingredients into a single list for easier frequency analysis
+def flat_ingredient_list(nested_ingredients):
+    # Define an empty list to store the flattened ingredients
+    flat_list = []
+
+    for ingredients in nested_ingredients:
+        for ingredient in ingredients:
+            flat_list.append(ingredient) # Add each ingredient from the nested lists to the flat list
+
+    return flat_list
+
+pizza_ingredients_list = flat_ingredient_list(pizza_ingredients) # Flatten the list of ingredients mentioned in pizza reviews
+sushi_ingredients_list = flat_ingredient_list(sushi_ingredients) # Flatten the list of ingredients mentioned in sushi reviews
+ramen_ingredients_list = flat_ingredient_list(ramen_ingredients) # Flatten the list of ingredients mentioned in ramen reviews
+
+print(pizza_ingredients_list[:20]) # Display the first 10 ingredients mentioned in pizza reviews to verify the output
