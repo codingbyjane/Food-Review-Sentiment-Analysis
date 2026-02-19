@@ -4,8 +4,9 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+from matplotlib_venn import venn2  # For plotting Venn diagrams of ingredient overlaps between positive and negative reviews
 from venny4py.venny4py import venny4py  # For plotting Venn diagrams of sentiment overlaps between ingredients
+from collections import Counter # For counting the frequency of ingredient mentions in reviews
 
 # Text preprocessing
 import nltk
@@ -41,14 +42,14 @@ full_dataset_df = full_dataset_df.rename(columns={'stars':'rating', 'text':'revi
 
 
 # Display the first few rows of the dataset to understand its structure
-print(full_dataset_df.head())
+#print(full_dataset_df.head())
 
 # Check the distribution of ratings in the dataset to understand the balance of sentiment classes
-print(full_dataset_df['rating'].value_counts(dropna=False))
+#print(full_dataset_df['rating'].value_counts(dropna=False))
 
 # Check for reviews with 0 rating, which may indicate missing data
 zero_reviews = full_dataset_df[full_dataset_df['rating'] == 0]
-print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
+#print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
 
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
@@ -138,7 +139,7 @@ pizza_reviews_df['sentiment'] = pizza_result_df['sentiment']
 sushi_reviews_df['sentiment'] = sushi_result_df['sentiment']
 ramen_reviews_df['sentiment'] = ramen_result_df['sentiment'] 
 
-# Tagging each review with the corresponding product category for later analysis
+# Tagging each review with the corresponding product category for later accessing
 pizza_reviews_df['product'] = 'Pizza'
 sushi_reviews_df['product'] = 'Sushi'
 ramen_reviews_df['product'] = 'Ramen'
@@ -222,4 +223,68 @@ pizza_ingredients_list = flat_ingredient_list(pizza_ingredients) # Flatten the l
 sushi_ingredients_list = flat_ingredient_list(sushi_ingredients) # Flatten the list of ingredients mentioned in sushi reviews
 ramen_ingredients_list = flat_ingredient_list(ramen_ingredients) # Flatten the list of ingredients mentioned in ramen reviews
 
-print(pizza_ingredients_list[:20]) # Display the first 10 ingredients mentioned in pizza reviews to verify the output
+pizza_ingredients_positive_list = flat_ingredient_list(pizza_ingredients_positive) # Flatten the list of ingredients mentioned in positive pizza reviews
+pizza_ingredients_negative_list = flat_ingredient_list(pizza_ingredients_negative) # Flatten the list of ingredients mentioned in negative pizza reviews. 
+
+# Analogously flatten the lists of ingredients mentioned in positive and negative reviews for sushi and ramen
+sushi_ingredients_positive_list = flat_ingredient_list(sushi_ingredients_positive)
+sushi_ingredients_negative_list = flat_ingredient_list(sushi_ingredients_negative)
+
+ramen_ingredients_positive_list = flat_ingredient_list(ramen_ingredients_positive)
+ramen_ingredients_negative_list = flat_ingredient_list(ramen_ingredients_negative)
+
+# Calculate the frequnency of each ingredient mentioned in the reviews for each product category using the Counter class from the collections module
+pizza_pos_ingredient_freqency = Counter(pizza_ingredients_positive_list)
+pizza_neg_ingredient_freqency = Counter(pizza_ingredients_negative_list)
+
+sushi_pos_ingredient_freqency = Counter(sushi_ingredients_positive_list)
+sushi_neg_ingredient_freqency = Counter(sushi_ingredients_negative_list)
+
+ramen_pos_ingredient_freqency = Counter(ramen_ingredients_positive_list)
+ramen_neg_ingredient_freqency = Counter(ramen_ingredients_negative_list)
+
+# Define the top 10 most frequently mentioned ingredients in positive and negative reviews for each product category. The set wrapper ensures there are no duplicates, the ingredient output of the list somprehension is used to extract only the ingredient names, ignoring the counts
+top10_pizza_pos_ingredients = set(ingredient for ingredient, count in pizza_pos_ingredient_freqency.most_common(10))
+top10_pizza_neg_ingredients = set(ingredient for ingredient, count in pizza_neg_ingredient_freqency.most_common(10))
+
+top10_sushi_pos_ingredients = set(ingredient for ingredient, count in sushi_pos_ingredient_freqency.most_common(10)) 
+top10_sushi_neg_ingredients = set(ingredient for ingredient, count in sushi_neg_ingredient_freqency.most_common(10))
+
+top10_ramen_pos_ingredients = set(ingredient for ingredient, count in ramen_pos_ingredient_freqency.most_common(10))
+top10_ramen_neg_ingredients = set(ingredient for ingredient, count in ramen_neg_ingredient_freqency.most_common(10))
+
+
+# Create sets of the top 10 ingredients for positive and negative reviews for each product category
+pizza_sets = {
+    'Positive': top10_pizza_pos_ingredients,
+    'Negative': top10_pizza_neg_ingredients
+}
+
+sushi_sets = {
+    'Positive': top10_sushi_pos_ingredients,
+    'Negative': top10_sushi_neg_ingredients
+}
+
+ramen_sets = {
+    'Positive': top10_ramen_pos_ingredients,
+    'Negative': top10_ramen_neg_ingredients
+}
+
+
+# Plot Venn diagrams to visualize the overlap of frequently mentioned ingredients in positive and negative reviews for each product category
+# Pizza Venn diagram
+plt.figure(figsize=(8, 6))
+venn2(subsets=(pizza_sets['Positive'], pizza_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
+plt.title('Ingredient Overlap in Pizza Reviews')
+
+# Sushi Venn diagram
+plt.figure(figsize=(8, 6))
+venn2(subsets=(sushi_sets['Positive'], sushi_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
+plt.title('Ingredient Overlap in Sushi Reviews')
+
+# Ramen Venn diagram
+plt.figure(figsize=(8, 6))
+venn2(subsets=(ramen_sets['Positive'], ramen_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
+plt.title('Ingredient Overlap in Ramen Reviews')
+
+plt.show()
