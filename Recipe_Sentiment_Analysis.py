@@ -239,6 +239,21 @@ sushi_neg_ingredient_freqency = Counter(sushi_ingredients_negative_list)
 ramen_pos_ingredient_freqency = Counter(ramen_ingredients_positive_list)
 ramen_neg_ingredient_freqency = Counter(ramen_ingredients_negative_list)
 
+
+# Create a general list of ingredients uniquely labeled positive across all product categories
+uniquely_positive_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'POSITIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all positive reviews across products)
+uniquely_negative_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'NEGATIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all negative reviews across products)
+
+uniquely_negative_ingredients_set = set(flat_ingredient_list(uniquely_negative_ingredients)) 
+uniquely_positive_ingredients_set = set(flat_ingredient_list(uniquely_positive_ingredients))
+
+truly_positive_ingredients = uniquely_positive_ingredients_set - uniquely_negative_ingredients_set
+truly_negative_ingredients = uniquely_negative_ingredients_set - uniquely_positive_ingredients_set
+
+print(f"Truly Positive Ingredients:\n{truly_positive_ingredients}\n")
+print(f"Truly Negative Ingredients:\n{truly_negative_ingredients}\n")
+
+
 # Define the top 10 most frequently mentioned ingredients in positive and negative reviews for each product category. The set wrapper ensures there are no duplicates, the ingredient output of the list somprehension is used to extract only the ingredient names, ignoring the counts
 top10_pizza_pos_ingredients = set(ingredient for ingredient, count in pizza_pos_ingredient_freqency.most_common(10))
 top10_pizza_neg_ingredients = set(ingredient for ingredient, count in pizza_neg_ingredient_freqency.most_common(10))
@@ -250,53 +265,44 @@ top10_ramen_pos_ingredients = set(ingredient for ingredient, count in ramen_pos_
 top10_ramen_neg_ingredients = set(ingredient for ingredient, count in ramen_neg_ingredient_freqency.most_common(10))
 
 
-# Create sets of the top 10 ingredients for positive and negative reviews for each product category
-pizza_sets = {
-    'Positive': top10_pizza_pos_ingredients,
-    'Negative': top10_pizza_neg_ingredients
-}
+top_pizza_ingredients = list(top10_pizza_neg_ingredients.union(top10_pizza_pos_ingredients)) # Create a list of the top pizza ingredients by taking the union of the positive and negative sets
+top_sushi_ingredients = list(top10_sushi_neg_ingredients.union(top10_sushi_pos_ingredients)) # Create a list of the top sushi ingredients
+top_ramen_ingredients = list(top10_ramen_neg_ingredients.union(top10_ramen_pos_ingredients)) # Create a list of the top ramen ingredients
 
-sushi_sets = {
-    'Positive': top10_sushi_pos_ingredients,
-    'Negative': top10_sushi_neg_ingredients
-}
+pizza_positive_counts = [pizza_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in positive reviews
+pizza_negative_counts = [-pizza_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in negative reviews
 
-ramen_sets = {
-    'Positive': top10_ramen_pos_ingredients,
-    'Negative': top10_ramen_neg_ingredients
-}
+sushi_positive_counts = [sushi_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
+sushi_negative_counts = [-sushi_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
 
-# Plot Venn diagrams to visualize the overlap of frequently mentioned ingredients in positive and negative reviews for each product category
-# Pizza Venn diagram
-plt.figure(figsize=(8, 6))
-venn2(subsets=(pizza_sets['Positive'], pizza_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
-plt.title('Ingredient Overlap in Pizza Reviews')
-
-# Sushi Venn diagram
-plt.figure(figsize=(8, 6))
-venn2(subsets=(sushi_sets['Positive'], sushi_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
-plt.title('Ingredient Overlap in Sushi Reviews')
-
-# Ramen Venn diagram
-plt.figure(figsize=(8, 6))
-venn2(subsets=(ramen_sets['Positive'], ramen_sets['Negative']), set_labels=('Positive Reviews', 'Negative Reviews'))
-plt.title('Ingredient Overlap in Ramen Reviews')
-
-plt.show()
+ramen_positive_counts = [ramen_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
+ramen_negative_counts = [-ramen_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
 
 
-# Create a general list of ingredients uniquely labeled positive across all product categories
-uniquely_positive_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'POSITIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all positive reviews across products)
-uniquely_negative_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'NEGATIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all negative reviews across products)
+# Defining a function for plotting a diverging bar chart to visualize the frequency of top ingredients mentioned in positive and negative reviews for each product category
+def plot_bar_chart(ingredients, positive_counts, negative_counts, product_category):
 
-uniquely_negative_ingredients_set = set(flat_ingredient_list(uniquely_negative_ingredients)) 
-uniquely_positive_ingredients_set = set(flat_ingredient_list(uniquely_positive_ingredients))
+    # Arguments:
+    # Ingredients (list): A list of ingredient names to plot on the y-axis.
+    # Positive_counts (list): A list of frequency counts for the positive mentions of each ingredient.
+    # Negative_counts (list): A list of frequency counts for the negative mentions of each ingredient.
+    # Product category (string): 'Pizza', 'Sushi', & 'Ramen'  
 
-print(f"Uniquely Positive Ingredients:\n{uniquely_positive_ingredients_set}\n")
-print(f"Uniquely Negative Ingredients:\n{uniquely_negative_ingredients_set}\n")
+    plt.figure(figsize=(12, 8))
 
-truly_positive_ingredients = uniquely_positive_ingredients_set - uniquely_negative_ingredients_set
-truly_negative_ingredients = uniquely_negative_ingredients_set - uniquely_positive_ingredients_set
+    # Plot the negative bars (left side)
+    plt.barh(ingredients, negative_counts, color='red', label='Negative Reviews')
 
-print(f"Truly Positive Ingredients:\n{truly_positive_ingredients}\n")
-print(f"Truly Negative Ingredients:\n{truly_negative_ingredients}\n")
+    # Plot the positive bars (right side)
+    plt.barh(ingredients, positive_counts, color='green', label='Positive Reviews')
+
+    plt.xlabel(f"Frequency of {product_category} Ingredient Mentions")
+    plt.title(f"Top {product_category} Ingredients in Positive vs Negative Reviews")
+    plt.legend()
+
+    plt.axvline(0) # Add a vertical center line to separate positive and negative sides of the chart
+    plt.show()
+
+plot_bar_chart(top_pizza_ingredients, pizza_positive_counts, pizza_negative_counts, 'Pizza') # Plot the bar chart for pizza ingredients
+plot_bar_chart(top_sushi_ingredients, sushi_positive_counts, sushi_negative_counts, 'Sushi') # Plot the bar chart for sushi ingredients
+plot_bar_chart(top_ramen_ingredients, ramen_positive_counts, ramen_negative_counts, 'Ramen') # Plot the bar chart for ramen ingredients
