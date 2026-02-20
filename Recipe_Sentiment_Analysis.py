@@ -2,9 +2,7 @@
 
 # Data manipulation & visualization
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib_venn import venn2  # For plotting Venn diagrams of ingredient overlaps between positive and negative reviews
 from collections import Counter # For counting the frequency of ingredient mentions in reviews
 
 # Text preprocessing
@@ -190,11 +188,7 @@ def extract_ingredients(reviews,  ingredients):
 
     return extracted_ingredients
 
-# Apply the defined function per product to extract the frequently mentioned ingredients in the reviews for each product category. Outputs ingredient mentions extracted per review, stored as nested lists
-pizza_ingredients = extract_ingredients(pizza_reviews_df['cleaned_review_text'], general_ingredient_list)
-sushi_ingredients = extract_ingredients(sushi_reviews_df['cleaned_review_text'], general_ingredient_list)
-ramen_ingredients = extract_ingredients(ramen_reviews_df['cleaned_review_text'], general_ingredient_list)
-
+# Apply the defined function per product to extract the frequently mentioned ingredients in the positive and negative reviews for each product category
 pizza_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in positive pizza reviews
 pizza_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in negative pizza reviews
 
@@ -215,9 +209,6 @@ def flat_ingredient_list(nested_ingredients):
 
     return flat_list
 
-pizza_ingredients_list = flat_ingredient_list(pizza_ingredients) # Flatten the list of ingredients mentioned in pizza reviews
-sushi_ingredients_list = flat_ingredient_list(sushi_ingredients) # Flatten the list of ingredients mentioned in sushi reviews
-ramen_ingredients_list = flat_ingredient_list(ramen_ingredients) # Flatten the list of ingredients mentioned in ramen reviews
 
 pizza_ingredients_positive_list = flat_ingredient_list(pizza_ingredients_positive) # Flatten the list of ingredients mentioned in positive pizza reviews
 pizza_ingredients_negative_list = flat_ingredient_list(pizza_ingredients_negative) # Flatten the list of ingredients mentioned in negative pizza reviews. 
