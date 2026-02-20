@@ -43,7 +43,10 @@ print(full_dataset_df['rating'].value_counts(dropna=False))
 
 # Check for reviews with 0 rating, which may indicate missing data
 zero_reviews = full_dataset_df[full_dataset_df['rating'] == 0]
-print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
+print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumption that 0 rating represents strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
+
+# Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analysis results
+full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
 
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
@@ -54,7 +57,7 @@ def preprocess_text(text):
 
     # Ensure the input is a string
     if not isinstance(text, str):
-        text = "" # Replace NaNs and other invalid value with an empty string to prevent errors during processing
+        text = "" # Replace NaNs and other invalid values with an empty string to prevent errors during processing
 
     text = text.lower() # Convert to lowercase
     text = re.sub(r"<.*?>", "", text) # Remove HTML tags
@@ -69,8 +72,6 @@ def preprocess_text(text):
 # Apply the function to the 'review_text' column of the DataFrame
 full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text) # creates a new column 'cleaned_review_text'
 
-# Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analysis results
-full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
 
 # Normalize sentiment labels to three classes: positive (4-5 stars), neutral (3 stars), and negative (1-2 stars)
 full_dataset_df['rating'] = full_dataset_df['rating'].replace({
@@ -198,6 +199,7 @@ sushi_ingredients_negative = extract_ingredients(negative_reviews_df[negative_re
 ramen_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
 ramen_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Ramen']['cleaned_review_text'], general_ingredient_list)
 
+
 # Define a function to flatten the nested lists of ingredients into a single list for easier frequency analysis
 def flat_ingredient_list(nested_ingredients):
     # Define an empty list to store the flattened ingredients
@@ -245,7 +247,7 @@ print(f"Truly Positive Ingredients:\n{truly_positive_ingredients}\n")
 print(f"Truly Negative Ingredients:\n{truly_negative_ingredients}\n")
 
 
-# Define the top 10 most frequently mentioned ingredients in positive and negative reviews for each product category. The set wrapper ensures there are no duplicates, the ingredient output of the list somprehension is used to extract only the ingredient names, ignoring the counts
+# Define the top 10 most frequently mentioned ingredients in positive and negative reviews for each product category. The set wrapper ensures there are no duplicates, the ingredient output of the list comprehension is used to extract only the ingredient names, ignoring the counts
 top10_pizza_pos_ingredients = set(ingredient for ingredient, count in pizza_pos_ingredient_freqency.most_common(10))
 top10_pizza_neg_ingredients = set(ingredient for ingredient, count in pizza_neg_ingredient_freqency.most_common(10))
 
