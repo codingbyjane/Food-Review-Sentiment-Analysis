@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2  # For plotting Venn diagrams of ingredient overlaps between positive and negative reviews
-from venny4py.venny4py import venny4py  # For plotting Venn diagrams of sentiment overlaps between ingredients
 from collections import Counter # For counting the frequency of ingredient mentions in reviews
 
 # Text preprocessing
@@ -23,9 +22,6 @@ import torch
 from datasets import Dataset
 from transformers import pipeline
 
-# NLP utilities
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
-
 # Dataset fetching
 from ucimlrepo import fetch_ucirepo
 
@@ -42,14 +38,14 @@ full_dataset_df = full_dataset_df.rename(columns={'stars':'rating', 'text':'revi
 
 
 # Display the first few rows of the dataset to understand its structure
-#print(full_dataset_df.head())
+print(full_dataset_df.head())
 
 # Check the distribution of ratings in the dataset to understand the balance of sentiment classes
-#print(full_dataset_df['rating'].value_counts(dropna=False))
+print(full_dataset_df['rating'].value_counts(dropna=False))
 
 # Check for reviews with 0 rating, which may indicate missing data
 zero_reviews = full_dataset_df[full_dataset_df['rating'] == 0]
-#print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
+print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumtion that 0 rating represent strong negative sentiment is false, because displayed 0 rated reviews contain positive comments
 
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
@@ -145,7 +141,7 @@ sushi_reviews_df['product'] = 'Sushi'
 ramen_reviews_df['product'] = 'Ramen'
 
 # Merge all product reviews into a single DataFrame for cleaner analysis and visualization.
-product_reviews_df = pd.concat([pizza_reviews_df, sushi_reviews_df, ramen_reviews_df], ignore_index=True)
+product_reviews_df = pd.concat([pizza_reviews_df, sushi_reviews_df, ramen_reviews_df], ignore_index=True) # Contains only reviews that mention the products, along with their predicted sentiment labels and product tags
 
 
 # Isolate the positive & negative instances by filtering the 'sentiment' column
@@ -166,7 +162,7 @@ general_ingredient_list = [
     'soy sauce', 'wasabi', 'ginger', 'avocado', 'cucumber', 'carrot', 'cream cheese', 'tempura flakes', 'salmon', 'tuna', 'eel', 'shrimp', 'crab', 'seaweed', 'rice', 'nori', 
 
     # Ramen ingredients
-    'pork', 'chicken', 'beef', 'tofu', 'egg', 'bok choy', 'miso', 'ramen noodles', 'chili oil', 'broth', 'scallions', 'chili', 'kimchi', 'sesame', 'tonkotsu', 'shoyu', 'shio'
+    'pork', 'chicken', 'beef', 'tofu', 'egg', 'bok choy', 'miso', 'ramen', 'chili oil', 'broth', 'scallions', 'chili', 'kimchi', 'sesame', 'tonkotsu', 'shoyu', 'shio', 'noodles'
 ]
 
 # Define a function to loop over the review texts and check for the presence pf ingredients from the general ingredient list
@@ -270,7 +266,6 @@ ramen_sets = {
     'Negative': top10_ramen_neg_ingredients
 }
 
-
 # Plot Venn diagrams to visualize the overlap of frequently mentioned ingredients in positive and negative reviews for each product category
 # Pizza Venn diagram
 plt.figure(figsize=(8, 6))
@@ -288,3 +283,20 @@ venn2(subsets=(ramen_sets['Positive'], ramen_sets['Negative']), set_labels=('Pos
 plt.title('Ingredient Overlap in Ramen Reviews')
 
 plt.show()
+
+
+# Create a general list of ingredients uniquely labeled positive across all product categories
+uniquely_positive_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'POSITIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all positive reviews across products)
+uniquely_negative_ingredients = extract_ingredients(product_reviews_df[product_reviews_df['sentiment'] == 'NEGATIVE']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in all negative reviews across products)
+
+uniquely_negative_ingredients_set = set(flat_ingredient_list(uniquely_negative_ingredients)) 
+uniquely_positive_ingredients_set = set(flat_ingredient_list(uniquely_positive_ingredients))
+
+print(f"Uniquely Positive Ingredients:\n{uniquely_positive_ingredients_set}\n")
+print(f"Uniquely Negative Ingredients:\n{uniquely_negative_ingredients_set}\n")
+
+truly_positive_ingredients = uniquely_positive_ingredients_set - uniquely_negative_ingredients_set
+truly_negative_ingredients = uniquely_negative_ingredients_set - uniquely_positive_ingredients_set
+
+print(f"Truly Positive Ingredients:\n{truly_positive_ingredients}\n")
+print(f"Truly Negative Ingredients:\n{truly_negative_ingredients}\n")

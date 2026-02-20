@@ -12,8 +12,12 @@ venv/
 # Jupyter
 .ipynb_checkpoints
 
-# Venn diagram images
-venn_diagrams/*.png
+# Denerated plots and figures
+plots/
+*.png
+*.jpg
+*.jpeg
+*.pdf
 
 # Intersection text outputs
 *.txt
