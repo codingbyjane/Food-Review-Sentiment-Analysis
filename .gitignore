@@ -1,8 +1,6 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
 # Environments
 .proj_env/
@@ -15,27 +13,18 @@ venv/
 # Denerated plots and figures
 plots/
 *.png
-*.jpg
-*.jpeg
-*.pdf
 
 # Intersection text outputs
 *.txt
-! requirements.txt
+!requirements.txt
 
 # Data files
 data/raw/
 data/processed/
 
-# Large dataset formats
-*.csv
-*.tsv
-*.json
-*.parquet
-
-# But allow small samples
-!data/sample/
-!data/sample/*.csv
+# Large data folders
+data/raw/
+data/processed/
 
 # Models
 models/
