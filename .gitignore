@@ -21,6 +21,7 @@ plots/
 
 # Intersection text outputs
 *.txt
+! requirements.txt
 
 # Data files
 data/raw/
