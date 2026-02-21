@@ -94,7 +94,7 @@ pizza_keywords = ['pizza', 'pepperoni', 'margherita', 'hawaiian'] # Define a lis
 sushi_keywords = ['sushi', 'sashimi', 'nigiri', 'maki'] # Define a list of keywords related to sushi to identify relevant reviews
 ramen_keywords = ['ramen', 'noodles', 'broth', 'tonkotsu'] # Define a list of keywords related to ramen to identify relevant reviews
 
-# Filtering the dataset to create susets for the startup's main products: pizza, suchi, and ramen
+# Filtering the dataset to create subsets for the startup's main products: pizza, suchi, and ramen
 pizza_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in pizza_keywords))
 ramen_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in ramen_keywords)) 
 sushi_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in sushi_keywords))
@@ -169,7 +169,7 @@ general_ingredient_list = [
     'pork', 'chicken', 'beef', 'tofu', 'egg', 'bok choy', 'miso', 'ramen', 'chili oil', 'broth', 'scallions', 'chili', 'kimchi', 'sesame', 'tonkotsu', 'shoyu', 'shio', 'noodles'
 ]
 
-# Define a function to loop over the review texts and check for the presence pf ingredients from the general ingredient list
+# Define a function to loop over the review texts and check for the presence of ingredients from the general ingredient list
 def extract_ingredients(reviews,  ingredients):
 
     # Arguments:
