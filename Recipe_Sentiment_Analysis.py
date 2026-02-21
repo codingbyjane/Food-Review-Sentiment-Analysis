@@ -48,6 +48,8 @@ print(zero_reviews[['rating', 'review_text']].head()) # Note: the assumption tha
 # Remove the reviews with 0 rating, as they are missing data and could distort the sentiment analysis results
 full_dataset_df = full_dataset_df[full_dataset_df['rating'] != 0]
 
+# display the total number of reviews in the dataset, excluding the 0 rated ones which are missing data
+print(f"Total number of reviews in the dataset (excluding 0-rated reviews): {len(full_dataset_df)}")
 
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
 stopwords_set = set(stopwords.words('english'))
@@ -67,7 +69,6 @@ def preprocess_text(text):
     tokens = [word for word in tokens if word not in stopwords_set] # Remove stopwords using a list comprehension
     cleaned_text = " ".join(tokens) # Join tokens back into a single string by adding a space between them
     return cleaned_text
-
 
 # Apply the function to the 'review_text' column of the DataFrame
 full_dataset_df['cleaned_review_text'] = full_dataset_df['review_text'].apply(preprocess_text) # creates a new column 'cleaned_review_text'
