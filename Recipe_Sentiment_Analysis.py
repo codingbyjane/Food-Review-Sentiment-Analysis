@@ -54,6 +54,10 @@ print(f"Total number of reviews in the dataset (excluding 0-rated reviews): {len
 # Data Preprocessing: lowercasing, removing punctuation, stopwords, html artifacts, and tokenization
 stopwords_set = set(stopwords.words('english'))
 
+# Remove "no" and "not" from the stopwords list to preserve negation in sentiment analysis, as they can significantly change the meaning of a review (e.g., "not good" vs "good")
+stopwords_set.discard('no')
+stopwords_set.discard('not')
+
 # Define a function to clean the review text
 def preprocess_text(text): 
 
@@ -95,9 +99,9 @@ pizza_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cle
 ramen_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in ramen_keywords)) 
 sushi_reviews = full_dataset_hf.filter(lambda review: any(keyword in review['cleaned_review_text'] for keyword in sushi_keywords))
 
-print(len(pizza_reviews))  # How many reviews mention pizza
-print(len(sushi_reviews))  # How many reviews mention sushi
-print(len(ramen_reviews))  # How many reviews mention ramen
+print(len(pizza_reviews))  # How many reviews mention pizza-related keywords
+print(len(sushi_reviews))  # How many reviews mention sushi-related keywords
+print(len(ramen_reviews))  # How many reviews mention ramen-related keywords
 
 # Create a pipeline for sentiment analysis using a pre-trained BERT model from Hugging Face's Transformers library
 pipe = pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
