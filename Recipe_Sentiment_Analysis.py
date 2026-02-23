@@ -106,7 +106,7 @@ print(len(ramen_reviews))  # How many reviews mention ramen-related keywords
 # Create a pipeline for sentiment analysis using a pre-trained BERT model from Hugging Face's Transformers library
 pipe = pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
 
-pizza_review_result = pipe(list(pizza_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of pizza reviews using the pipeline, truncating long reviews to fit the model's input size
+pizza_review_result = pipe(list(pizza_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of pizza reviews using the pipeline, truncating long reviews to fit the model's input size, and setting a maximum length of 512 tokens
 sushi_review_result = pipe(list(sushi_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of sushi reviews
 ramen_review_result = pipe(list(ramen_reviews['cleaned_review_text']), truncation=True, max_length=512) # Analyze the sentiment of ramen reviews
 
@@ -179,7 +179,7 @@ def extract_ingredients(reviews,  ingredients):
     extracted_ingredients = []
 
     for review in reviews:
-        # Defien an empty list to store the ingredients found in the current review
+        # Define an empty list to store the ingredients found in the current review
         found_in_review = []
 
         for ingredient in ingredients:
@@ -194,7 +194,7 @@ def extract_ingredients(reviews,  ingredients):
 
     return extracted_ingredients
 
-# Apply the defined function per product to extract the frequently mentioned ingredients in the positive and negative reviews for each product category
+# Apply the defined function per product category to extract the frequently mentioned ingredients in the positive and negative reviews for each product category
 pizza_ingredients_positive = extract_ingredients(positive_reviews_df[positive_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in positive pizza reviews
 pizza_ingredients_negative = extract_ingredients(negative_reviews_df[negative_reviews_df['product'] == 'Pizza']['cleaned_review_text'], general_ingredient_list) # Extract ingredients mentioned in negative pizza reviews
 
@@ -245,6 +245,10 @@ uniquely_negative_ingredients = extract_ingredients(product_reviews_df[product_r
 uniquely_negative_ingredients_set = set(flat_ingredient_list(uniquely_negative_ingredients)) 
 uniquely_positive_ingredients_set = set(flat_ingredient_list(uniquely_positive_ingredients))
 
+print(f"Uniquely Positive Ingredients:\n{uniquely_positive_ingredients_set}\n") 
+print(f"Uniquely Negative Ingredients:\n{uniquely_negative_ingredients_set}\n") 
+
+# Identify the ingredients that are truly positive (mentioned only in positive reviews) and truly negative (mentioned only in negative reviews) by taking the set difference
 truly_positive_ingredients = uniquely_positive_ingredients_set - uniquely_negative_ingredients_set
 truly_negative_ingredients = uniquely_negative_ingredients_set - uniquely_positive_ingredients_set
 
