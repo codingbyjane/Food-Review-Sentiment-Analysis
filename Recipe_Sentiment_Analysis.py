@@ -228,14 +228,14 @@ ramen_ingredients_positive_list = flat_ingredient_list(ramen_ingredients_positiv
 ramen_ingredients_negative_list = flat_ingredient_list(ramen_ingredients_negative)
 
 # Calculate the frequnency of each ingredient mentioned in the reviews for each product category using the Counter class from the collections module
-pizza_pos_ingredient_freqency = Counter(pizza_ingredients_positive_list)
-pizza_neg_ingredient_freqency = Counter(pizza_ingredients_negative_list)
+pizza_pos_ingredient_frequency = Counter(pizza_ingredients_positive_list)
+pizza_neg_ingredient_frequency = Counter(pizza_ingredients_negative_list)
 
-sushi_pos_ingredient_freqency = Counter(sushi_ingredients_positive_list)
-sushi_neg_ingredient_freqency = Counter(sushi_ingredients_negative_list)
+sushi_pos_ingredient_frequency = Counter(sushi_ingredients_positive_list)
+sushi_neg_ingredient_frequency = Counter(sushi_ingredients_negative_list)
 
-ramen_pos_ingredient_freqency = Counter(ramen_ingredients_positive_list)
-ramen_neg_ingredient_freqency = Counter(ramen_ingredients_negative_list)
+ramen_pos_ingredient_frequency = Counter(ramen_ingredients_positive_list)
+ramen_neg_ingredient_frequency = Counter(ramen_ingredients_negative_list)
 
 
 # Create a general list of ingredients uniquely labeled positive across all product categories
@@ -257,28 +257,28 @@ print(f"Truly Negative Ingredients:\n{truly_negative_ingredients}\n")
 
 
 # Define the top 10 most frequently mentioned ingredients in positive and negative reviews for each product category. The set wrapper ensures there are no duplicates, the ingredient output of the list comprehension is used to extract only the ingredient names, ignoring the counts
-top10_pizza_pos_ingredients = set(ingredient for ingredient, count in pizza_pos_ingredient_freqency.most_common(10))
-top10_pizza_neg_ingredients = set(ingredient for ingredient, count in pizza_neg_ingredient_freqency.most_common(10))
+top10_pizza_pos_ingredients = set(ingredient for ingredient, count in pizza_pos_ingredient_frequency.most_common(10))
+top10_pizza_neg_ingredients = set(ingredient for ingredient, count in pizza_neg_ingredient_frequency.most_common(10))
 
-top10_sushi_pos_ingredients = set(ingredient for ingredient, count in sushi_pos_ingredient_freqency.most_common(10)) 
-top10_sushi_neg_ingredients = set(ingredient for ingredient, count in sushi_neg_ingredient_freqency.most_common(10))
+top10_sushi_pos_ingredients = set(ingredient for ingredient, count in sushi_pos_ingredient_frequency.most_common(10)) 
+top10_sushi_neg_ingredients = set(ingredient for ingredient, count in sushi_neg_ingredient_frequency.most_common(10))
 
-top10_ramen_pos_ingredients = set(ingredient for ingredient, count in ramen_pos_ingredient_freqency.most_common(10))
-top10_ramen_neg_ingredients = set(ingredient for ingredient, count in ramen_neg_ingredient_freqency.most_common(10))
+top10_ramen_pos_ingredients = set(ingredient for ingredient, count in ramen_pos_ingredient_frequency.most_common(10))
+top10_ramen_neg_ingredients = set(ingredient for ingredient, count in ramen_neg_ingredient_frequency.most_common(10))
 
 
 top_pizza_ingredients = list(top10_pizza_neg_ingredients.union(top10_pizza_pos_ingredients)) # Create a list of the top pizza ingredients by taking the union of the positive and negative sets
 top_sushi_ingredients = list(top10_sushi_neg_ingredients.union(top10_sushi_pos_ingredients)) # Create a list of the top sushi ingredients
 top_ramen_ingredients = list(top10_ramen_neg_ingredients.union(top10_ramen_pos_ingredients)) # Create a list of the top ramen ingredients
 
-pizza_positive_counts = [pizza_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in positive reviews
-pizza_negative_counts = [-pizza_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in negative reviews
+pizza_positive_counts = [pizza_pos_ingredient_frequency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in positive reviews
+pizza_negative_counts = [-pizza_neg_ingredient_frequency.get(ingredient, 0) for ingredient in top_pizza_ingredients] # Get the frequency counts for the top pizza ingredients in negative reviews. The negative sign is used to plot the negative counts on the left side of the diverging bar chart
 
-sushi_positive_counts = [sushi_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
-sushi_negative_counts = [-sushi_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
+sushi_positive_counts = [sushi_pos_ingredient_frequency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
+sushi_negative_counts = [-sushi_neg_ingredient_frequency.get(ingredient, 0) for ingredient in top_sushi_ingredients]
 
-ramen_positive_counts = [ramen_pos_ingredient_freqency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
-ramen_negative_counts = [-ramen_neg_ingredient_freqency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
+ramen_positive_counts = [ramen_pos_ingredient_frequency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
+ramen_negative_counts = [-ramen_neg_ingredient_frequency.get(ingredient, 0) for ingredient in top_ramen_ingredients]
 
 
 # Defining a function for plotting a diverging bar chart to visualize the frequency of top ingredients mentioned in positive and negative reviews for each product category
